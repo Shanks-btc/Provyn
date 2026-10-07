@@ -1,12 +1,11 @@
 # Provyn
 
-Provyn (formerly Parity)
 
 Provyn is an onchain prime brokerage for tokenized stocks. It turns an xStocks portfolio into working capital. You can borrow stablecoins against AAPLx or SPYx, earn yield by redepositing them into Kamino's lending pool, add leverage through Kamino Multiply, and trade through Jupiter, all from one interface. Describe what you want in plain language or pick it from a guided wizard. Provyn reads your real Kamino position, simulates the transaction before showing you anything, and cross-checks the asset's price against Pyth whenever Pyth can answer. You only ever sign something that has already been proven to work. Funds can come from any chain through deBridge.
 
 - **Demo video:** https://vimeo.com/manage/videos/1230313058
 - **Repository:** https://github.com/Shanks-btc/Provyn
-- **Live app: https://dashboard-production-d8bb.up.railway.app/
+- **Live app:** https://dashboard-production-d8bb.up.railway.app/
 
 ## Contents
 
