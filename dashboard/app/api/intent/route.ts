@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         try {
           send({ type: "start", intent });
           const result = await agent.handleIntent(intent, wallet, (e) => {
-            const out = e.output as { valid?: boolean; available?: boolean; projectedHealthFactor?: number | null } | string | null;
+            const out = e.output as { valid?: boolean; available?: boolean; projectedHealthFactor?: number | null; source?: string; referenceSession?: string; referenceAsOf?: string } | string | null;
             send({
               type: "tool",
               turn: e.turn,
@@ -57,6 +57,10 @@ export async function POST(req: NextRequest) {
               valid: typeof out === "object" && out ? (out.valid ?? null) : null,
               available: typeof out === "object" && out ? (out.available ?? null) : null,
               projectedHealthFactor: typeof out === "object" && out ? (out.projectedHealthFactor ?? null) : null,
+              // check_price_divergence: who answered (pyth | finnhub) and whether the reference was live, so the wizard labels it truthfully.
+              source: typeof out === "object" && out ? (out.source ?? null) : null,
+              referenceSession: typeof out === "object" && out ? (out.referenceSession ?? null) : null,
+              referenceAsOf: typeof out === "object" && out ? (out.referenceAsOf ?? null) : null,
             });
           });
           send({ type: "result", intent, result });

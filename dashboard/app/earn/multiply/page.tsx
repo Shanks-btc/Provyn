@@ -5,8 +5,8 @@ import { BackLink } from "@/components/earn/Detail";
 import { MultiplyDetail } from "@/components/earn/MultiplyDetail";
 
 export const metadata: Metadata = {
-  title: "Parity, Multiply",
-  description: "Open a leveraged SPYx or TSLAx position on Kamino Multiply. Kamino's own managed rebalancing, not Parity's.",
+  title: "Provyn, Multiply",
+  description: "Open a leveraged SPYx or TSLAx position on Kamino Multiply. Kamino's own managed rebalancing, not Provyn's.",
 };
 
 export default function MultiplyPage() {

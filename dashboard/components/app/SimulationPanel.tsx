@@ -8,7 +8,7 @@ export const HF_BLOCK = 1.1;
 export const HF_WARN = 1.5;
 
 export function SimulationPanel({ state, result, error, hf, blocked }: { state: string; result: ValidationResult | null; error: string | null; hf: number | null; blocked: boolean }) {
-  if (state === "idle") return <p className="m-0 font-mono text-[12px] text-ink-faint">Enter both amounts and Parity simulates the exact transaction on mainnet before you sign anything.</p>;
+  if (state === "idle") return <p className="m-0 font-mono text-[12px] text-ink-faint">Enter both amounts and Provyn simulates the exact transaction on mainnet before you sign anything.</p>;
   if (state === "running") return <Notice>Simulating this transaction against live mainnet state…</Notice>;
   if (state === "error") return <Notice tone="clay">Simulation request failed: {error}</Notice>;
   if (!result) return null;
@@ -30,7 +30,7 @@ export function SimulationPanel({ state, result, error, hf, blocked }: { state: 
       </p>
       {hf !== null && hf < HF_WARN && (
         <p className="mb-0 mt-2 font-serif text-[13px] leading-normal text-clay-text">
-          {blocked ? `This is below ${HF_BLOCK.toFixed(2)}, too close to liquidation, so signing is blocked. Borrow less or supply more.` : `Below ${HF_WARN.toFixed(1)}, the health factor Parity treats as its conservative minimum: a modest price drop could put this position at risk of liquidation.`}
+          {blocked ? `This is below ${HF_BLOCK.toFixed(2)}, too close to liquidation, so signing is blocked. Borrow less or supply more.` : `Below ${HF_WARN.toFixed(1)}, the health factor Provyn treats as its conservative minimum: a modest price drop could put this position at risk of liquidation.`}
         </p>
       )}
     </div>

@@ -32,7 +32,7 @@ interface Strategy {
 // Kamino mainnet at market.checkedAt — a snapshot, not a feed, and labelled that way.
 
 // Multiply covers every asset with live Kamino Multiply positions (SPYx and TSLAx as of the last
-// snapshot; Parity's own builder simulated both successfully on mainnet on 2026-09-24). Derived,
+// snapshot; Provyn's own builder simulated both successfully on mainnet on 2026-09-24). Derived,
 // so the card can't claim one asset "only" when another goes live, as "SPYx only" once did.
 const multiplyLive = multiplyLiveAssets.map((s) => ({ symbol: s, ...market.assets[s].multiply }));
 const multiplyScope =

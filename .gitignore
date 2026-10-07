@@ -25,3 +25,6 @@ keypair.json
 
 .claude/
 dashboard/lib/*.bak
+
+# Risk dataset written by `npm run collect` (Finnhub-derived rows are covered by Finnhub terms: never commit)
+/data/

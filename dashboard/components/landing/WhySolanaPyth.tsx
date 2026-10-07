@@ -58,7 +58,7 @@ export function WhySolanaPyth() {
           <p className="mb-5 mt-0 font-serif text-[15px] leading-[1.6] text-ink-muted">
             Every proposal starts with a real check against your position and the market, something that only makes
             sense at scale if it costs a fraction of a cent and confirms in under a second. That&apos;s the role Solana
-            plays here: infrastructure Parity depends on for every single interaction, not a talking point.
+            plays here: infrastructure Provyn depends on for every single interaction, not a talking point.
           </p>
           <StatusPanel title="FROM OUR OWN TEST RUNS" rows={[...SOLANA_FACTS]} />
         </Card>
@@ -67,11 +67,11 @@ export function WhySolanaPyth() {
           <div className="mb-4">
             <DotLabel tone="clay">MARKET DATA</DotLabel>
           </div>
-          <CardTitle>A second, independent price check before any position is sized.</CardTitle>
+          <CardTitle>A second price check, whenever Pyth can answer.</CardTitle>
           <p className="mb-5 mt-0 font-serif text-[15px] leading-[1.6] text-ink-muted">
-            Parity is built to cross-check an xStock&apos;s on-chain price against Pyth&apos;s real market feed before
-            recommending anything, catching a gap between the tokenized price and the underlying stock before it becomes
-            your problem.
+            When Pyth can answer, Provyn cross-checks an xStock&apos;s on-chain price against Pyth&apos;s real market feed
+            before recommending anything, catching a gap between the tokenized price and the underlying stock. When it
+            can&apos;t, Provyn says so and sizes conservatively.
           </p>
           {/* A plain mechanism list — no status claims. The honest entitlement status lives in the Proof section. */}
           <div className="overflow-hidden rounded-[10px] border border-line">

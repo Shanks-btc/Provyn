@@ -1,5 +1,5 @@
 {
-  "name": "parity",
+  "name": "provyn",
   "version": "0.1.0",
   "description": "Onchain prime brokerage for xStocks — intent-driven agent for earn/borrow against tokenized equities on Solana, built on Kamino Lend + Pyth.",
   "type": "module",
@@ -13,6 +13,9 @@
     "check:multiply-deposit": "tsx src/kamino/inspect-multiply-deposit.ts",
     "check:feeds": "tsx src/pyth/inspect-feeds.ts",
     "check:agent": "tsx src/agent/run-e2e.ts",
+    "check:price": "tsx src/inspect-price.ts",
+    "collect": "tsx src/riskdata/collect.ts",
+    "check:riskdata": "tsx src/riskdata/inspect-riskdata.ts",
     "check:send-devnet": "tsx src/kamino/inspect-send-devnet.ts",
     "snapshot:landing": "tsx scripts/snapshot-landing-figures.ts"
   },

@@ -57,7 +57,7 @@
 @theme inline {
   --font-serif: var(--font-fraunces);
   --font-mono: var(--font-jetbrains-mono);
-  --font-logo: var(--font-manrope); /* the "Parity" logotype only */
+  --font-logo: var(--font-manrope); /* the "Provyn" logotype only */
 }
 
 /* "Explore Strategies" jumps to #strategies — smoothly, unless the user prefers reduced motion. */
@@ -172,7 +172,7 @@ html {
 }
 
 /*
- * Wallet-connect modal (from @solana/wallet-adapter-react-ui): re-skinned to Parity's dark terminal
+ * Wallet-connect modal (from @solana/wallet-adapter-react-ui): re-skinned to Provyn's dark terminal
  * palette and fonts instead of the library's default blue-black + DM Sans. Selectors are prefixed with `body` so they beat the library's
  * stylesheet, which loads after this file at equal specificity. Only colours/typography are overridden; the library's layout, focus handling and behaviour are untouched.
  */

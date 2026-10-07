@@ -107,7 +107,7 @@ export function MultiplyDetail() {
 
       <div className="mb-4 grid gap-4 md:grid-cols-3" data-testid="multiply-stats">
         <HeroStat label={`LIVE ${asset} MULTIPLY POSITIONS`} value={live ? live.multiply.liveObligations ?? "0" : caps.status === "error" ? "n/a" : "…"} note="Open Multiply obligations on Kamino, right now." />
-        <HeroStat label="AVERAGE LEVERAGE" value={live?.multiply.avgLeverage ? `${Number(live.multiply.avgLeverage).toFixed(2)}x` : caps.status === "error" ? "n/a" : "…"} tone="gold" note="Across those positions, Kamino's figure, not Parity's." />
+        <HeroStat label="AVERAGE LEVERAGE" value={live?.multiply.avgLeverage ? `${Number(live.multiply.avgLeverage).toFixed(2)}x` : caps.status === "error" ? "n/a" : "…"} tone="gold" note="Across those positions, Kamino's figure, not Provyn's." />
         <HeroStat label="TOTAL VALUE IN THESE POSITIONS" value={live?.multiply.tvlUsd ? usd(Number(live.multiply.tvlUsd)) : caps.status === "error" ? "n/a" : "…"} note={live ? `Live from Kamino${live.dataSource === "cache" ? " (cached, live call failed)" : ""}.` : undefined} />
       </div>
       {caps.status === "error" && <Notice tone="clay">Could not load live Multiply stats: {caps.error}</Notice>}
@@ -115,8 +115,8 @@ export function MultiplyDetail() {
 
       <div className="mt-4">
         <Notice tone="gold">
-          <strong>Whose rebalancing is this?</strong> Kamino&apos;s own managed rebalancing, not something Parity built. Parity prepares and simulates the transaction that opens your position and you sign it; after that, the leverage is Kamino&apos;s
-          to manage, not Parity&apos;s.
+          <strong>Whose rebalancing is this?</strong> Kamino&apos;s own managed rebalancing, not something Provyn built. Provyn prepares and simulates the transaction that opens your position and you sign it; after that, the leverage is Kamino&apos;s
+          to manage, not Provyn&apos;s.
         </Notice>
       </div>
 
@@ -138,12 +138,13 @@ export function MultiplyDetail() {
                 </label>
                 <input id="mlev" type="range" min={MIN_LEVERAGE} max={maxLeverage} step={0.1} value={lev} disabled={!wallet || !multiplyOk} onChange={(e) => setLeverage(Number(e.target.value))} className="w-full accent-gold-deep" />
                 <div className="mt-1 flex justify-between font-mono text-[11px] text-ink-faint"><span>{MIN_LEVERAGE.toFixed(1)}x</span><span>max offered {maxLeverage.toFixed(1)}x</span></div>
-                <p className="mb-0 mt-2 font-mono text-[11px] leading-normal text-ink-muted">Leverage amplifies losses as well as gains. Parity sizes to {DEFAULT_LEVERAGE.toFixed(1)}x by default.</p>
+                <p className="mb-0 mt-2 font-mono text-[11px] leading-normal text-ink-muted">Leverage amplifies losses as well as gains. Provyn sizes to {DEFAULT_LEVERAGE.toFixed(1)}x by default.</p>
               </div>
             </div>
             <div className="mt-6" data-testid="simulation"><SimulationPanel state={sim.status} result={result} error={sim.status === "error" ? sim.error : null} hf={hf} blocked={blockedByHf} /></div>
             <div className="mt-6">{action}</div>
             <p className="mb-0 mt-3 font-mono text-[11px] leading-normal text-ink-faint">Real mainnet funds. The transaction flash-borrows USDC, swaps it through Jupiter and deposits everything in one step. Nothing is signed until you approve it in your wallet.</p>
+            <p className="mb-0 mt-2 font-mono text-[12px] leading-normal text-ink" data-testid="multiply-close-note">Provyn can&apos;t close Multiply positions yet. Close it in Kamino&apos;s app.</p>
           </div>
 
           <aside aria-label="Multiply summary" className="self-start overflow-hidden rounded-[10px] border border-line bg-surface">
@@ -171,11 +172,11 @@ export function MultiplyDetail() {
 
       <DetailSection id="process" title="Process & execution">
         <ProcessList steps={[
-          { title: "Confirm Multiply is live for the asset", text: "Parity checks Kamino's live Multiply market for the asset and refuses to propose it where none exists (AAPLx)." },
+          { title: "Confirm Multiply is live for the asset", text: "Provyn checks Kamino's live Multiply market for the asset and refuses to propose it where none exists (AAPLx)." },
           { title: "Build the position", text: "Deposit, flash loan, Jupiter swap and borrow are composed into one atomic transaction, using an address lookup table to fit Solana's size limit." },
           { title: "Simulate it on mainnet", text: "The exact transaction is simulated against live state. You see the result and the projected health factor before anything is signed." },
-          { title: "Sign and submit", text: "You approve it in your own wallet; Parity submits it and waits for on-chain confirmation, then reports the real outcome." },
-          { title: "Kamino rebalances", text: "After it opens, the position is managed by Kamino's own Multiply mechanism, Parity does not rebalance or monitor it on your behalf." },
+          { title: "Sign and submit", text: "You approve it in your own wallet; Provyn submits it and waits for on-chain confirmation, then reports the real outcome." },
+          { title: "Kamino rebalances", text: "After it opens, the position is managed by Kamino's own Multiply mechanism, Provyn does not rebalance or monitor it on your behalf." },
         ]} />
       </DetailSection>
 
@@ -185,8 +186,8 @@ export function MultiplyDetail() {
           { title: "Liquidation risk", tone: "clay", text: <>If the collateral value falls until debt crosses the {liq ?? ", "}% threshold, Kamino can liquidate part of the position. Kamino&apos;s rebalancing does not guarantee that can&apos;t happen.</> },
           { title: "Swap and slippage risk", tone: "neutral", text: "Opening swaps USDC into the stock through Jupiter with a 1% slippage bound and a 0.5% quote buffer; a poor fill costs you at entry." },
           { title: "Borrow-rate risk", tone: "neutral", text: <>You pay the variable USDC borrow rate on the debt (<N>{borrowApyLabel}</N> APY as of the last check). It can rise.</> },
-          { title: "Kamino smart-contract risk", tone: "neutral", text: "The position, the flash loan and the rebalancing all live inside Kamino. Parity cannot mitigate a bug or exploit there." },
-          { title: "Pyth availability risk", tone: "neutral", text: "Parity's Pyth price cross-check is currently unavailable for xStock feeds (key not yet entitled); Parity says so and sizes conservatively. Kamino's own oracle sets liquidation prices." },
+          { title: "Kamino smart-contract risk", tone: "neutral", text: "The position, the flash loan and the rebalancing all live inside Kamino. Provyn cannot mitigate a bug or exploit there." },
+          { title: "Pyth availability risk", tone: "neutral", text: "Provyn's Pyth price cross-check is currently unavailable for xStock feeds (key not yet entitled); Provyn says so and sizes conservatively. Kamino's own oracle sets liquidation prices." },
         ]} />
       </DetailSection>
 
@@ -205,9 +206,9 @@ export function MultiplyDetail() {
       <DetailSection id="faq" title="FAQ">
         <Faq items={[
           { q: "What is Multiply?", a: <>A Kamino-managed leveraged position. In one transaction, a flash loan borrows USDC, a Jupiter swap turns it into more of your stock, and everything is deposited as collateral, so you hold more exposure than you started with. Leverage amplifies losses as well as gains, and you pay the USDC borrow rate on the debt.</> },
-          { q: "Who manages the leverage after it opens?", a: <>Kamino, through its own Multiply mechanism. It is not something Parity built, and Parity does not rebalance or watch your position for you.</> },
-          { q: "Why only SPYx and TSLAx?", a: <>Those are the assets with a live Kamino Multiply market. AAPLx has none, so Parity&apos;s capability check refuses to propose it rather than guess. The list is read from Kamino, so it changes if Kamino adds more.</> },
-          { q: "Does Parity hold or move my funds?", a: <>No. The transaction is built unsigned and only goes through if you sign it in your own wallet. Prefer no leverage? <Link href="/borrow" className="text-gold-strong underline">Go to Borrow</Link>.</> },
+          { q: "Who manages the leverage after it opens?", a: <>Kamino, through its own Multiply mechanism. It is not something Provyn built, and Provyn does not rebalance or watch your position for you.</> },
+          { q: "Why only SPYx and TSLAx?", a: <>Those are the assets with a live Kamino Multiply market. AAPLx has none, so Provyn&apos;s capability check refuses to propose it rather than guess. The list is read from Kamino, so it changes if Kamino adds more.</> },
+          { q: "Does Provyn hold or move my funds?", a: <>No. The transaction is built unsigned and only goes through if you sign it in your own wallet. Prefer no leverage? <Link href="/borrow" className="text-gold-strong underline">Go to Borrow</Link>.</> },
         ]} />
       </DetailSection>
     </>

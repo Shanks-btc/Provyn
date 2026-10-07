@@ -13,7 +13,7 @@ import { HF_BLOCK, HF_WARN, SimulationPanel } from "../app/SimulationPanel";
 import { TxModal, type SummaryRow } from "../app/TxModal";
 import { ConnectWalletButton } from "../wallet/ConnectWalletButton";
 
-// Only the three assets Parity has verified end to end — deliberately not a dropdown of everything listed.
+// Only the three assets Provyn has verified end to end — deliberately not a dropdown of everything listed.
 const ASSETS = ["AAPLx", "SPYx", "TSLAx"] as const;
 type Asset = (typeof ASSETS)[number];
 
@@ -201,7 +201,7 @@ export function BorrowForm() {
 
         <div className="mt-6">{action}</div>
         <p className="mb-0 mt-3 font-mono text-[11px] leading-normal text-ink-faint">
-          Real mainnet funds. Nothing is signed until you approve it in your wallet, and Parity never holds your keys.
+          Real mainnet funds. Nothing is signed until you approve it in your wallet, and Provyn never holds your keys.
         </p>
       </section>
 

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { fail, HttpError, json } from "@/lib/server/parity";
 import { clientIp, rateLimit, rateLimitedResponse } from "@/lib/server/rate-limit";
+import { finnhubEnabled } from "../../../../../src/finnhub/quote";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,9 @@ async function fetchBody(symbol: string, key: string): Promise<Record<string, un
 
 export async function GET(req: NextRequest) {
   try {
+    // Finnhub is opt-in (FINNHUB_ENABLED=true): its free plan is personal-use only and bars sharing its data. With the flag
+    // off this route does nothing and calls nothing; the Trade page does not render the band at all.
+    if (!finnhubEnabled()) throw new HttpError(404, "Live price is not available.");
     const key = process.env.FINNHUB_API_KEY;
     if (!key) throw new HttpError(503, "Live price is not configured on this server (FINNHUB_API_KEY is missing).");
     const symbol = (req.nextUrl.searchParams.get("symbol") ?? "AAPL").toUpperCase();

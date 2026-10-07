@@ -92,7 +92,7 @@ export function AgentResult({
   if ("error" in outcome) {
     return (
       <div data-testid="agent-result" data-kind="error" className="flex flex-col items-start gap-4">
-        <Notice tone="clay"><strong>Parity could not complete this.</strong> {outcome.error}</Notice>
+        <Notice tone="clay"><strong>Provyn could not complete this.</strong> {outcome.error}</Notice>
         <div className="flex gap-3">
           <button type="button" onClick={onRetry} className="cursor-pointer rounded-lg bg-gold-deep px-5 py-3 font-mono text-[14px] font-medium text-gold-ink hover:bg-gold-text">Try again</button>
           <button type="button" onClick={onRestart} className="cursor-pointer rounded-lg border border-line-strong bg-surface px-5 py-3 font-mono text-[14px] text-ink hover:border-gold-deep">Start over</button>
@@ -104,7 +104,7 @@ export function AgentResult({
   const result = outcome.result as Proposal | NoProposal;
   const intentBox = (
     <details className="rounded-lg border border-line bg-surface px-4 py-3">
-      <summary className="cursor-pointer font-mono text-[12px] text-ink-muted">What Parity received (your answers, turned into a request)</summary>
+      <summary className="cursor-pointer font-mono text-[12px] text-ink-muted">What Provyn received (your answers, turned into a request)</summary>
       <p className="mb-0 mt-3 font-serif text-[13px] leading-normal text-ink-muted" data-testid="composed-intent">{outcome.intent}</p>
     </details>
   );
@@ -112,7 +112,7 @@ export function AgentResult({
   if (!result.proposed) {
     return (
       <div data-testid="agent-result" data-kind="no-proposal" className="flex flex-col gap-5">
-        <Notice tone="gold"><strong>Parity did not reach a validated proposal.</strong> Here is what it said, unedited:</Notice>
+        <Notice tone="gold"><strong>Provyn did not reach a validated proposal.</strong> Here is what it said, unedited:</Notice>
         <div className="rounded-[10px] border border-line bg-surface p-6"><RichText text={result.message} /></div>
         {intentBox}
         <div className="flex flex-wrap gap-3">
@@ -138,13 +138,13 @@ export function AgentResult({
       <div>
         <div data-testid="strategy-badge" className="mb-3 inline-block rounded-xl bg-positive-tint px-2.5 py-1 font-mono text-[10px] tracking-[0.03em] text-positive">STRATEGY SELECTED FOR YOU</div>
         <h2 data-testid="strategy-title" className="m-0 font-serif text-[28px] font-semibold text-ink md:text-[34px]">{TYPE_LABEL[result.strategyType]}</h2>
-        <p className="mb-0 mt-2 font-serif text-[13px] text-ink-muted">This is Parity&apos;s real answer for your wallet right now. It can differ from run to run, and nothing has been signed or sent.</p>
+        <p className="mb-0 mt-2 font-serif text-[13px] text-ink-muted">This is Provyn&apos;s real answer for your wallet right now. It can differ from run to run, and nothing has been signed or sent.</p>
       </div>
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
         <div className="rounded-[10px] border border-line bg-surface p-6 md:p-7" data-testid="proposal-summary"><RichText text={result.summary} /></div>
         <aside className="self-start overflow-hidden rounded-[10px] border border-line bg-surface" data-testid="proposal-numbers">
-          <div className="border-b border-line bg-paper-raised px-5 py-3 font-mono text-[10px] tracking-[0.04em] text-ink-faint">THE NUMBERS PARITY VALIDATED</div>
+          <div className="border-b border-line bg-paper-raised px-5 py-3 font-mono text-[10px] tracking-[0.04em] text-ink-faint">THE NUMBERS PROVYN VALIDATED</div>
           {rows.map(([k, v]) => (
             <div key={k} className="flex items-start justify-between gap-4 border-b border-line-soft px-5 py-3 last:border-b-0">
               <span className="font-serif text-[14px] text-ink-muted">{k}</span>
@@ -158,7 +158,7 @@ export function AgentResult({
       </div>
 
       <section aria-labelledby="risks-title" data-testid="proposal-risks">
-        <h3 id="risks-title" className="m-0 mb-3 font-serif text-[20px] font-semibold text-ink">Risks Parity flagged</h3>
+        <h3 id="risks-title" className="m-0 mb-3 font-serif text-[20px] font-semibold text-ink">Risks Provyn flagged</h3>
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {result.risks.map((r, i) => (
             <li key={i} className="rounded-lg border border-clay-text/30 bg-clay-tint/50 px-4 py-3 font-serif text-[14px] leading-normal text-ink">{noEmDash(r)}</li>

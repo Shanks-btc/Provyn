@@ -149,7 +149,7 @@ export function WizardModalProvider({ children }: { children: ReactNode }) {
                   Find a strategy that fits
                 </h2>
                 <p className="mb-0 mt-1.5 hidden max-w-[640px] font-serif text-[14px] leading-normal text-ink-muted md:block">
-                  Tell Parity what you want. It checks your real position and the live market before recommending anything, and only proposes; you sign every transaction yourself.
+                  Tell Provyn what you want. It checks your real position and the live market before recommending anything, and only proposes; you sign every transaction yourself.
                 </p>
               </div>
               <button

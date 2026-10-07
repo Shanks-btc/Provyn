@@ -15,7 +15,7 @@ function StepBody({ children, className = "" }: { children: ReactNode; className
 
 const CHECKS = [
   ["Reserve data", "Kamino, live"],
-  ["Price divergence", "Pyth, cross-checked"],
+  ["Price divergence", "Pyth, flagged if unavailable"],
   ["The transaction itself", "Simulated, mainnet"],
 ] as const;
 
@@ -35,7 +35,7 @@ export function HowItWorks() {
           </div>
           <StepTitle>Connect.</StepTitle>
           <StepBody>
-            Parity reads your real Kamino position, what you hold, what you&apos;ve borrowed, and your current health
+            Provyn reads your real Kamino position, what you hold, what you&apos;ve borrowed, and your current health
             factor. Nothing is asked of you that it can check itself.
           </StepBody>
         </StepCard>
@@ -60,7 +60,7 @@ export function HowItWorks() {
               <StepTitle>Verify, before anything is shown to you.</StepTitle>
               <StepBody>
                 Three checks run against real infrastructure before a proposal is ever assembled. If any of them
-                can&apos;t be confirmed, the agent sizes conservatively and says so, it doesn&apos;t guess.
+                can&apos;t be confirmed, Provyn sizes conservatively and says so, it doesn&apos;t guess.
               </StepBody>
             </div>
             <div className="flex-1 overflow-hidden rounded-[10px] border border-line md:self-start">

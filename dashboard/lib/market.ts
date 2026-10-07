@@ -20,7 +20,7 @@ export const checkedAtLabel = () => {
 };
 
 /**
- * The one rendered USDC borrow APY. The Strategies "Borrow" card and the Problem section's Parity
+ * The one rendered USDC borrow APY. The Strategies "Borrow" card and the Problem section's Provyn
  * card both display exactly this value, so the two can never show different numbers.
  */
 export const borrowApyLabel = pct(market.usdc.borrowApyPct);
@@ -52,5 +52,5 @@ export const LANDING_SEP = ", ";
 export const carryNegative = market.usdc.netCarryPct < 0;
 export const carryLabel = signedPct(market.usdc.netCarryPct);
 export const carryNote = carryNegative
-  ? "Parity's agent won't recommend this until the math turns positive, it isn't right now."
+  ? "Provyn's agent won't recommend this until the math turns positive, it isn't right now."
   : "Supply APY currently exceeds borrow APY, the agent can consider this, sized conservatively.";

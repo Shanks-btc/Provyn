@@ -42,7 +42,11 @@ function brief(e: ToolCallEvent): string {
     case "get_asset_capabilities":
       return `borrow=${o.borrow.supported} earn=${o.earn.supported} (supplyApy ${o.earn.supplyApyPct}%, borrowApy ${o.borrow.debtBorrowApyPct}%) multiply=${o.multiply.supported}`;
     case "check_price_divergence":
-      return o.available === false ? `available=false (${o.error})` : `spread=${o.spreadPct}% staleness=${JSON.stringify(o.staleness)}`;
+      return o.available === false
+        ? `available=false (pyth: ${o.error}; finnhub: ${o.finnhubError})`
+        : o.source === "finnhub"
+          ? `source=finnhub session=${o.referenceSession} spread=${o.spreadPct.toFixed(3)}% classification=${o.classification} coarse=${o.coarse}`
+          : `source=pyth spread=${o.spreadPct}% staleness=${JSON.stringify(o.staleness)}`;
     case "validate_strategy":
       return `${o.validationId} valid=${o.valid} simulation=${JSON.stringify(
         o.simulation.ran
@@ -68,7 +72,9 @@ async function main() {
   const agent = new ParityAgent(kamino, pyth, ANTHROPIC_API_KEY);
 
   const trace: any[] = [];
-  for (const s of SCENARIOS) {
+  // CHECK_AGENT_ONLY=AAPLx runs just the scenarios whose name contains that text (each scenario is billed Anthropic spend).
+  const only = process.env.CHECK_AGENT_ONLY?.toLowerCase();
+  for (const s of SCENARIOS.filter((x) => !only || x.name.toLowerCase().includes(only))) {
     console.log(`\n==================== ${s.name} ====================`);
     console.log(`wallet: ${s.wallet}\nintent: ${s.intent}\n`);
     const calls: ToolCallEvent[] = [];

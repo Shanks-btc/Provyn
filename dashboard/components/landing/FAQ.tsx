@@ -21,10 +21,10 @@ const N = ({ children }: { children: ReactNode }) => <Mono className="text-[0.92
 
 const FAQS: { q: string; a: ReactNode }[] = [
   {
-    q: "What is Parity?",
+    q: "What is Provyn?",
     a: (
       <>
-        Parity is a prime brokerage rebuilt for the internet, unlock yield, leverage, and liquidity from your stock
+        Provyn is a prime brokerage rebuilt for the internet, unlock yield, leverage, and liquidity from your stock
         portfolio on Solana. Today, that means borrowing against or earning yield on tokenized stocks (xStocks) via Kamino
         Lend: pick an asset, supply it as collateral, borrow or deposit. An agent runs underneath every action, checking
         your real position and verifying the transaction against real mainnet state before you sign.
@@ -32,20 +32,20 @@ const FAQS: { q: string; a: ReactNode }[] = [
     ),
   },
   {
-    q: "Does Parity use AI?",
+    q: "Does Provyn use AI?",
     a: (
       <>
-        Yes, one step. Parity uses an AI reasoning step to run these checks, reading your position, verifying prices,
+        Yes, one step. Provyn uses an AI reasoning step to run these checks, reading your position and Kamino&apos;s prices,
         and simulating the transaction, but it only proposes. Every signature is yours.
       </>
     ),
   },
   {
-    q: "Does Parity hold or move my funds?",
+    q: "Does Provyn hold or move my funds?",
     a: (
       <>
-        No. Parity never holds your keys or your assets. Every transaction is built unsigned, and the only way it goes
-        through is you signing it in your own wallet, Parity&apos;s send step accepts nothing that your wallet hasn&apos;t
+        No. Provyn never holds your keys or your assets. Every transaction is built unsigned, and the only way it goes
+        through is you signing it in your own wallet, Provyn&apos;s send step accepts nothing that your wallet hasn&apos;t
         already signed.
       </>
     ),
@@ -67,7 +67,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
         Each asset has a loan-to-value limit (the most you can borrow against it) and a higher liquidation threshold, for
         example AAPLx <N>{limits("AAPLx")}</N>, SPYx <N>{limits("SPYx")}</N>, TSLAx <N>{limits("TSLAx")}</N>. If your
         collateral&apos;s value falls far enough that your debt crosses the threshold, Kamino can liquidate part of it.
-        Parity aims for a health factor of at least <N>1.5</N> and flags anything lower in plain language.
+        Provyn aims for a health factor of at least <N>1.5</N> and flags anything lower in plain language.
       </>
     ),
   },
@@ -81,7 +81,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
     ),
   },
   {
-    q: "Why won’t Parity recommend borrowing just to redeposit and earn?",
+    q: "Why won’t Provyn recommend borrowing just to redeposit and earn?",
     a:
       usdc.netCarryPct < 0 ? (
         <>
@@ -102,7 +102,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
       <>
         A Kamino-managed leveraged position. In one transaction, a flash loan borrows USDC, a Jupiter swap turns it into
         more of your stock, and everything is deposited as collateral, so you hold more exposure than you started with.
-        Leverage amplifies losses as well as gains, and you pay the USDC borrow rate on the debt. Parity sizes it
+        Leverage amplifies losses as well as gains, and you pay the USDC borrow rate on the debt. Provyn sizes it
         conservatively (e.g. <N>1.5×</N>).
       </>
     ),
@@ -111,7 +111,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "What does Pyth do?",
     a: (
       <>
-        Parity cross-checks each xStock&apos;s price against Pyth&apos;s independent feed before sizing a position. Our
+        Provyn cross-checks each xStock&apos;s price against Pyth&apos;s independent feed before sizing a position. Our
         API key doesn&apos;t yet carry entitlement for equity or xStock feeds, so that check currently returns unavailable.
         When it does, the agent says so, lists it as a risk, and sizes the position smaller, it never pretends the check
         passed.
@@ -123,7 +123,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
     a: (
       <>
         xStocks are Token-2022 tokens with a scaled display: wallets show your raw balance × an issuer-set multiplier (AAPLx
-        is currently <N>×{aaplx?.uiMultiplier?.current.toFixed(6)}</N>), but Kamino moves raw units. Parity sizes every
+        is currently <N>×{aaplx?.uiMultiplier?.current.toFixed(6)}</N>), but Kamino moves raw units. Provyn sizes every
         deposit from the raw amount, the displayed figure once failed a real simulation with “insufficient funds”.
       </>
     ),
@@ -132,7 +132,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "Why Solana?",
     a: (
       <>
-        Parity checks your position, cross-checks a price before every proposal, that only works if checking is cheap.
+        Provyn checks your position and simulates the transaction before every proposal, that only works if checking is cheap.
         Reads are free, and a real transaction fee is <N>{solana.proofFeeLamports.toLocaleString("en-US")} lamports</N>{" "}
         (about <N>${solana.proofFeeUsd.toFixed(4)}</N>). And the assets themselves, xStocks and Kamino&apos;s market for
         them, already live here.
@@ -228,7 +228,7 @@ export function FAQ() {
             Straight answers.
           </h2>
           <p className="mb-0 mt-4 font-serif text-[17px] leading-normal text-ink-muted">
-            What Parity does, what it checks before you sign, and what it doesn&apos;t do yet.
+            What Provyn does, what it checks before you sign, and what it doesn&apos;t do yet.
           </p>
         </div>
 

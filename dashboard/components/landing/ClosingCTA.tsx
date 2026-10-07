@@ -36,7 +36,7 @@ export function ClosingCTA() {
           See what your Stock portfolio actually supports.
         </h2>
         <p className="mx-auto mb-9 mt-0 max-w-[480px] font-serif text-base text-photo-muted">
-          No commitment, no form to fill out, Parity reads your real Portfolio and tells you what&apos;s true today.
+          No commitment, no form to fill out, Provyn reads your real Portfolio and tells you what&apos;s true today.
         </p>
         <div className="flex flex-col justify-center gap-3.5 sm:flex-row">
           <ConnectWalletButton size="cta" inert />

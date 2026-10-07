@@ -6,8 +6,8 @@ import { Mono } from "@/components/Mono";
 import { carryLabel, carryNegative, carryNote, listJoin, market, multiplyLiveAssets, multiplyNotLiveAssets } from "@/lib/market";
 
 export const metadata: Metadata = {
-  title: "Parity, Earn",
-  description: "The two Earn strategies Parity has built on Kamino's xStocks market: Redeposit to earn and Multiply.",
+  title: "Provyn, Earn",
+  description: "The two Earn strategies Provyn has built on Kamino's xStocks market: Redeposit to earn and Multiply.",
 };
 
 const multiplyLive = multiplyLiveAssets.map((s) => ({ symbol: s, ...market.assets[s].multiply }));

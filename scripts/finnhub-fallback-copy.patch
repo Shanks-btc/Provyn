@@ -1,0 +1,89 @@
+--- a/dashboard/components/landing/HowItWorks.tsx
++++ b/dashboard/components/landing/HowItWorks.tsx
+@@ -15,7 +15,7 @@
+ 
+ const CHECKS = [
+   ["Reserve data", "Kamino, live"],
+-  ["Price divergence", "Pyth, flagged if unavailable"],
++  ["Price divergence", "Pyth, Finnhub as backup"],
+   ["The transaction itself", "Simulated, mainnet"],
+ ] as const;
+ 
+--- a/dashboard/components/landing/WhySolanaPyth.tsx
++++ b/dashboard/components/landing/WhySolanaPyth.tsx
+@@ -5,8 +5,8 @@
+ // How the Pyth check works, as a plain mechanism — no status claims. (The verified integration
+ // status, including the blocked entitlement, is the PYTH INTEGRATION STATUS panel in Proof.tsx.)
+ const CHECK_STEPS = [
+-  "Read Pyth's real price for the underlying stock",
+-  "Compare it to the xStock's on-chain price",
++  "Read Pyth's price for the underlying stock, or Finnhub's quote if Pyth is unavailable",
++  "Compare it to the xStock's on-chain price, adjusted for its multiplier",
+   "Flag any meaningful gap before sizing a position",
+ ] as const;
+ 
+@@ -67,11 +67,11 @@
+           <div className="mb-4">
+             <DotLabel tone="clay">MARKET DATA</DotLabel>
+           </div>
+-          <CardTitle>A second price check, whenever Pyth can answer.</CardTitle>
++          <CardTitle>A second, independent price check before any position is sized.</CardTitle>
+           <p className="mb-5 mt-0 font-serif text-[15px] leading-[1.6] text-ink-muted">
+-            When Pyth can answer, Provyn cross-checks an xStock&apos;s on-chain price against Pyth&apos;s real market feed
+-            before recommending anything, catching a gap between the tokenized price and the underlying stock. When it
+-            can&apos;t, Provyn says so and sizes conservatively.
++            Provyn cross-checks an xStock&apos;s on-chain price against an independent reference before recommending
++            anything. Pyth is the first choice. If Pyth can&apos;t answer, Provyn uses a Finnhub stock quote instead and
++            says so. When US markets are closed the reference is the last close, so it is treated as a coarse check.
+           </p>
+           {/* A plain mechanism list — no status claims. The honest entitlement status lives in the Proof section. */}
+           <div className="overflow-hidden rounded-[10px] border border-line">
+--- a/dashboard/components/landing/FAQ.tsx
++++ b/dashboard/components/landing/FAQ.tsx
+@@ -111,10 +111,10 @@
+     q: "What does Pyth do?",
+     a: (
+       <>
+-        Provyn cross-checks each xStock&apos;s price against Pyth&apos;s independent feed before sizing a position. Our
+-        API key doesn&apos;t yet carry entitlement for equity or xStock feeds, so that check currently returns unavailable.
+-        When it does, the agent says so, lists it as a risk, and sizes the position smaller, it never pretends the check
+-        passed.
++        Pyth is an oracle network that publishes market prices. Provyn uses it first to cross-check an xStock&apos;s price
++        against the underlying stock before sizing a position. If Pyth can&apos;t answer, Provyn falls back to a stock
++        quote from Finnhub and says so. When US markets are closed that reference is the last close, so the check is
++        coarse and sizing stays conservative.
+       </>
+     ),
+   },
+--- a/dashboard/app/earn/redeposit/page.tsx
++++ b/dashboard/app/earn/redeposit/page.tsx
+@@ -92,7 +92,7 @@
+                 text: <>Your stock is collateral. If its price falls until your debt crosses the asset&apos;s liquidation threshold, Kamino can liquidate part of it, AAPLx <N>{limits("AAPLx")}</N>, SPYx <N>{limits("SPYx")}</N>, TSLAx <N>{limits("TSLAx")}</N>. Redepositing borrowed USDC does not add any collateral.</>,
+               },
+               { title: "Kamino smart-contract risk", tone: "neutral", text: "Both the borrow and the redeposit happen inside Kamino Lend. A bug, exploit or governance action there would affect this position, and Provyn cannot mitigate it." },
+-              { title: "Pyth availability risk", tone: "neutral", text: "Provyn's own cross-check against Pyth is currently unavailable for equity and xStock feeds (our API key isn't entitled to them yet), so this is sized conservatively, and that's disclosed. Kamino's own oracle sets liquidation prices." },
++              { title: "Price-check availability risk", tone: "neutral", text: "If neither Pyth nor Finnhub can answer, or the market is closed so the reference is only a last close, the price check is coarse or unavailable. Provyn says so and sizes conservatively. Kamino's own oracle sets liquidation prices." },
+             ]}
+           />
+         </DetailSection>
+--- a/dashboard/components/earn/MultiplyDetail.tsx
++++ b/dashboard/components/earn/MultiplyDetail.tsx
+@@ -186,7 +186,7 @@
+           { title: "Swap and slippage risk", tone: "neutral", text: "Opening swaps USDC into the stock through Jupiter with a 1% slippage bound and a 0.5% quote buffer; a poor fill costs you at entry." },
+           { title: "Borrow-rate risk", tone: "neutral", text: <>You pay the variable USDC borrow rate on the debt (<N>{borrowApyLabel}</N> APY as of the last check). It can rise.</> },
+           { title: "Kamino smart-contract risk", tone: "neutral", text: "The position, the flash loan and the rebalancing all live inside Kamino. Provyn cannot mitigate a bug or exploit there." },
+-          { title: "Pyth availability risk", tone: "neutral", text: "Provyn's Pyth price cross-check is currently unavailable for xStock feeds (key not yet entitled); Provyn says so and sizes conservatively. Kamino's own oracle sets liquidation prices." },
++          { title: "Price-check availability risk", tone: "neutral", text: "If neither Pyth nor Finnhub can answer, or the market is closed so the reference is only a last close, the price check is coarse or unavailable. Provyn says so and sizes conservatively. Kamino's own oracle sets liquidation prices." },
+         ]} />
+       </DetailSection>
+ 
+--- a/dashboard/components/earn/Detail.tsx
++++ b/dashboard/components/earn/Detail.tsx
+@@ -144,6 +144,7 @@
+ export const COUNTERPARTIES = [
+   { name: "Kamino Lend", role: "The lending market Provyn builds on: it holds your collateral, lends the USDC and liquidates positions that fall below their threshold. Provyn is a client of it, not a lender.", href: "https://kamino.finance" },
+   { name: "Pyth Network", role: "Oracle network Provyn cross-checks prices against whenever its feeds can answer. Kamino's own oracle sets the prices your position is actually liquidated against.", href: "https://www.pyth.network" },
++  { name: "Finnhub", role: "Stock price reference, used as a fallback when Pyth can't answer. When US markets are closed it is the last close, so the check is coarse.", href: "https://finnhub.io" },
+ ];
+ 
+ export function Faq({ items }: { items: { q: string; a: ReactNode }[] }) {

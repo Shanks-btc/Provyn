@@ -67,8 +67,8 @@ export function Footer({ emDash = false }: { emDash?: boolean } = {}) {
             </div>
             <p className="m-0 font-serif text-sm leading-[1.6] text-ink-faint">
               {emDash
-                ? "Earn yield, borrow against your stock portfolio, every proposal checked against real Kamino and Pyth data before it’s shown to you."
-                : "Earn yield, borrow against your stock portfolio, every proposal checked against real Kamino and Pyth data before it’s shown to you."}
+                ? "Earn yield, borrow against your stock portfolio, every proposal checked against your real Kamino position and previewed before you sign."
+                : "Earn yield, borrow against your stock portfolio, every proposal checked against your real Kamino position and previewed before you sign."}
             </p>
           </div>
 
@@ -89,7 +89,7 @@ export function Footer({ emDash = false }: { emDash?: boolean } = {}) {
         </div>
 
         <div className="border-t border-term-line pt-6 text-center font-mono text-xs text-term-faint md:text-left">
-          © 2026 Parity. Built for Stocklana.
+          © 2026 Provyn. Built for Stocklana.
         </div>
       </div>
     </footer>

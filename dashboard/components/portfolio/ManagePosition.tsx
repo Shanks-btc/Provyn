@@ -95,7 +95,6 @@ function RepayForm({ borrows, onChanged, onDone }: { borrows: Leg[]; onChanged?:
       live = false;
       clearTimeout(t);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valid, wallet, asset, max, amountN]);
 
   const p = preview.status === "ready" ? preview.data : null;
@@ -188,7 +187,6 @@ function WithdrawForm({ deposits, onChanged, onDone }: { deposits: Leg[]; onChan
       live = false;
       clearTimeout(t);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valid, wallet, asset, max, amountN]);
 
   const p = preview.status === "ready" ? preview.data : null;
@@ -263,14 +261,15 @@ function CloseForm({ deposits, borrows, onChanged, onDone }: { deposits: Leg[]; 
   useEffect(() => {
     if (!wallet) return;
     let live = true;
-    setPreview({ status: "loading" });
+    // Reset to "loading" for this position. Done in a microtask, which still runs before any network reply can arrive, so the
+    // effect body itself does not set state synchronously.
+    Promise.resolve().then(() => live && setPreview({ status: "loading" }));
     api<ManagePreviewResponse>("/api/close-position", { json: { wallet, collateralAsset, debtAsset, preview: true } })
       .then((d) => live && setPreview({ status: "ready", data: d }))
       .catch((e: Error) => live && setPreview({ status: "error", error: e.message }));
     return () => {
       live = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, collateralAsset, debtAsset]);
 
   const p = preview.status === "ready" ? preview.data : null;

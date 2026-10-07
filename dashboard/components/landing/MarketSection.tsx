@@ -216,7 +216,7 @@ function AssetDetail({ x }: { x: XStock }) {
       </ul>
 
       <p className="mb-0 mt-4 font-serif text-[13px] leading-[1.6] text-term-muted">
-        This multiplier is set by the token&apos;s issuer. Wallets display raw balance × multiplier; Kamino, and Parity, work in
+        This multiplier is set by the token&apos;s issuer. Wallets display raw balance × multiplier; Kamino, and Provyn, work in
         raw units, so deposits are sized from the raw amount.
       </p>
     </aside>
@@ -231,7 +231,7 @@ const EXPLAINERS = [
   },
   {
     title: "A balance your wallet can't show you",
-    body: "Wallets display raw balance × multiplier, but Kamino moves raw units. Sizing from the displayed figure once failed a real mainnet simulation with “insufficient funds”, Parity sizes from the raw amount.",
+    body: "Wallets display raw balance × multiplier, but Kamino moves raw units. Sizing from the displayed figure once failed a real mainnet simulation with “insufficient funds”, Provyn sizes from the raw amount.",
     icon: "M12 3v18M5 8h14M7 16h10",
   },
   {

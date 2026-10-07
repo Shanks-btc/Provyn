@@ -21,10 +21,10 @@ export interface Answers {
   risk: Risk | null;
 }
 
-// Three real options. No "Hedge Risks": Parity has no hedging / perps / options capability, so it isn't offered.
+// Three real options. No "Hedge Risks": Provyn has no hedging / perps / options capability, so it isn't offered.
 const GOALS: { value: Goal; title: string; text: string }[] = [
   { value: "accumulate", title: "Accumulate Spot", text: "Buy an xStock with your USDC or SOL, as a real swap right in the app." },
-  { value: "yield", title: "Yield on Stocks", text: "Put stock you hold to work, Parity weighs the Earn options that genuinely apply." },
+  { value: "yield", title: "Yield on Stocks", text: "Put stock you hold to work, Provyn weighs the Earn options that genuinely apply." },
   { value: "borrow", title: "Borrow Against Stocks", text: "Borrow USDC against stock you hold, without selling it." },
 ];
 const ASSETS = ["AAPLx", "SPYx", "TSLAx"] as const;
@@ -128,7 +128,7 @@ export function Wizard({ onBusyChange, onNavigate, resume = false }: { onBusyCha
       });
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => null);
-        throw new Error(body?.error ?? `The request to Parity failed (${res.status}).`);
+        throw new Error(body?.error ?? `The request to Provyn failed (${res.status}).`);
       }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -156,7 +156,7 @@ export function Wizard({ onBusyChange, onNavigate, resume = false }: { onBusyCha
           }
         }
       }
-      if (!finished) throw new Error("The connection closed before Parity finished.");
+      if (!finished) throw new Error("The connection closed before Provyn finished.");
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
       setOutcome({ error: (e as Error).message });
@@ -226,7 +226,7 @@ export function Wizard({ onBusyChange, onNavigate, resume = false }: { onBusyCha
             <div className="font-serif text-[14px] leading-normal text-ink-muted">
               {accumulate
                 ? "Borrow against it on Kamino, or put it to work in an Earn vault. Both pages read your real balance and prompt you to buy first if you still need to."
-                : "Once you hold enough, Parity checks your real position and simulates the exact transaction on mainnet before proposing anything."}
+                : "Once you hold enough, Provyn checks your real position and simulates the exact transaction on mainnet before proposing anything."}
             </div>
             {accumulate ? (
               // Just navigation, not a paid call: both destinations handle an empty balance themselves, so this is never gated on already holding the asset.
@@ -282,7 +282,7 @@ export function Wizard({ onBusyChange, onNavigate, resume = false }: { onBusyCha
 
       {step >= 3 && (
         <p className="mb-0 mt-4 max-w-[640px] font-serif text-[13px] leading-normal text-ink-muted">
-          {step === 3 ? "Your outlook and risk answers are sent to Parity as part of your request, they change how it sizes the position and whether it will consider leverage at all." : "This sets a hard limit on your position: a minimum health factor, how much of your borrowing room gets used, and whether leverage is allowed."}
+          {step === 3 ? "Your outlook and risk answers are sent to Provyn as part of your request, they change how it sizes the position and whether it will consider leverage at all." : "This sets a hard limit on your position: a minimum health factor, how much of your borrowing room gets used, and whether leverage is allowed."}
         </p>
       )}
 
@@ -315,7 +315,7 @@ export function Wizard({ onBusyChange, onNavigate, resume = false }: { onBusyCha
         {isLast && !accumulate && position.status === "error" && <Notice tone="clay">Could not read your wallet: {position.error}</Notice>}
       </div>
       {isLast && !accumulate && !wallet && (
-        <p className="mb-0 mt-3 font-serif text-[13px] text-ink-muted">Parity reasons over your real Kamino position, so it needs your wallet&apos;s public address. Connecting does not sign anything.</p>
+        <p className="mb-0 mt-3 font-serif text-[13px] text-ink-muted">Provyn reasons over your real Kamino position, so it needs your wallet&apos;s public address. Connecting does not sign anything.</p>
       )}
     </div>
   );

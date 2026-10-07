@@ -11,7 +11,7 @@ interface ProblemStat {
 }
 
 const STATS: ProblemStat[] = [
-  // External figures, supplied with the design: not produced by Parity's backend.
+  // External figures, supplied with the design: not produced by Provyn's backend.
   {
     value: "$100T+",
     tone: "ink",
@@ -31,7 +31,7 @@ const STATS: ProblemStat[] = [
     tone: "positive",
     // The mockup said "LIVE RATE"; the page labels snapshot figures "as of last check" everywhere
     // else (they're verified live, then snapshotted — not a live feed), so this one does too.
-    label: "PARITY'S RATE VIA KAMINO, AS OF LAST CHECK",
+    label: "PROVYN'S RATE VIA KAMINO, AS OF LAST CHECK",
     body: "The same real, live-checked figure shown in the Strategies section below, not a separate marketing number.",
     raised: true,
   },

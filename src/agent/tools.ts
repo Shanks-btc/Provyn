@@ -83,10 +83,14 @@ export const tools = [
   {
     name: "check_price_divergence",
     description:
-      "Compare Pyth's real equity price against the xStock's on-chain tracking " +
-      "price for a symbol. Use this before proposing any position sized against " +
-      "an xStock — a large spread or stale feed is a reason to size down or flag " +
-      "risk to the user, not something to silently ignore.",
+      "Independent price cross-check for an xStock. Tries Pyth first (real equity price vs the " +
+      "xStock's on-chain feed); if Pyth cannot answer AND the optional Finnhub fallback is enabled on this " +
+      "server, uses Finnhub (Kamino's oracle price, adjusted by the token's UI multiplier, vs Finnhub's " +
+      "real stock quote); otherwise it reports available: false. The result says which " +
+      "answered (source: \"pyth\" | \"finnhub\"), the market session, and whether the check is coarse. " +
+      "Use this before proposing any position sized against an xStock — a large spread or stale feed " +
+      "is a reason to size down or flag risk to the user, not something to silently ignore. Never " +
+      "attribute a Finnhub result to Pyth.",
     input_schema: {
       type: "object" as const,
       properties: {

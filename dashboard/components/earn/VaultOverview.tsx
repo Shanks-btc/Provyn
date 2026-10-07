@@ -43,7 +43,7 @@ export function VaultOverview({ kind, symbol }: { kind: "redeposit" | "multiply"
         <p className="mb-0 mt-2 font-serif text-[14px] text-ink-muted">
           {kind === "redeposit" ? (
             <>
-              Redeposit needs an existing borrow first. <Link href="/borrow" className="text-gold-strong underline">Start on Borrow</Link>, Parity does not open this strategy while net carry is negative.
+              Redeposit needs an existing borrow first. <Link href="/borrow" className="text-gold-strong underline">Start on Borrow</Link>, Provyn does not open this strategy while net carry is negative.
             </>
           ) : (
             <>Nothing to show yet. Once you open one it appears here, and on your <Link href="/portfolio" className="text-gold-strong underline">Portfolio</Link>.</>

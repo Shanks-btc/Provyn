@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { SiteNav } from "@/components/SiteNav";
 import { ConnectWalletButton } from "@/components/wallet/ConnectWalletButton";
 import { RealQuote } from "@/components/trade/RealQuote";
+import { finnhubEnabled } from "../../../src/finnhub/quote";
 import { TradeSidePanel } from "@/components/trade/TradeSidePanel";
 import { OrderPanel } from "@/components/trade/TradeControls";
 import {
@@ -11,9 +12,12 @@ import {
   TickerBar,
 } from "@/components/trade/TradeConcept";
 
+// FINNHUB_ENABLED is read per request (not baked in at build time), so the live-price band follows the flag on a running server.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
-  title: "Parity, Trade (Concept)",
-  description: "Concept preview of Parity's Trade screen. No live equity-perp market exists on Solana yet.",
+  title: "Provyn, Trade (Concept)",
+  description: "Concept preview of Provyn's Trade screen. No live equity-perp market exists on Solana yet.",
 };
 
 /**
@@ -26,8 +30,9 @@ export default function TradeConceptPage() {
     <div className="flex min-h-screen flex-col bg-charcoal font-serif lg:h-screen lg:min-h-[900px] lg:overflow-hidden">
       <SiteNav tone="dark" active="trade" action={<ConnectWalletButton tone="dark" />} />
       <TickerBar />
-      {/* The only real number on this page — its own band, labelled REAL DATA; everything else here is simulated. */}
-      <RealQuote symbol="AAPL" />
+      {/* The only real number on this page, in its own band; everything else here is simulated. Rendered only when the
+          opt-in Finnhub flag is on: with it off there is no band, no request and no retry loop. */}
+      {finnhubEnabled() && <RealQuote symbol="AAPL" />}
       <main className="mx-auto flex w-full max-w-[1440px] flex-col lg:flex-1 lg:flex-row lg:overflow-hidden">
         <ChartPanel />
         {/* Right-hand column: Long/Short by default, the real swap panel with ?mode=spot. Until the URL is read, the

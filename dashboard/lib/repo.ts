@@ -3,7 +3,7 @@
  * repo root and were written from verified results.
  *
  * PLACEHOLDER: the public GitHub URL isn't confirmed yet. When it is, set each `href` below
- * (one line per link, e.g. "https://github.com/<org>/parity/blob/main/README.md"). An entry
+ * (one line per link, e.g. "https://github.com/<org>/provyn/blob/main/README.md"). An entry
  * with an href renders as a link automatically; `null` renders as plain text.
  */
 export const REPO_FILES: { name: string; description: string; href: string | null }[] = [

@@ -34,7 +34,7 @@ function multiplyReason(symbol: Symbol) {
   const n = market.assets[symbol].multiply.obligations;
   return n > 0
     ? `Multiply is live for ${symbol} because ${n} real positions are currently open on it, confirmed, not assumed.`
-    : `Multiply isn't live for ${symbol} because Kamino has no live Multiply positions for it today, not a Parity decision.`;
+    : `Multiply isn't live for ${symbol} because Kamino has no live Multiply positions for it today, not a Provyn decision.`;
 }
 
 export function Capabilities() {
@@ -44,7 +44,7 @@ export function Capabilities() {
         What&apos;s actually available, by asset
       </SectionTitle>
       <p className="mb-11 mt-0 max-w-[620px] font-serif text-[17px] text-ink-muted">
-        Capabilities are checked live against Kamino, not assumed, Parity states what&apos;s supported for the specific
+        Capabilities are checked live against Kamino, not assumed, Provyn states what&apos;s supported for the specific
         asset you&apos;re asking about, nothing more.
       </p>
 

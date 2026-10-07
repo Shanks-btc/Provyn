@@ -1,7 +1,7 @@
 import { HomeLink } from "./HomeLink";
 
 /**
- * Parity's logo: the "Parity" logotype only, in Manrope 800 with letter-spacing −1px — no icon (the earlier
+ * Provyn's logo: the "Provyn" logotype only, in Manrope 800 with letter-spacing −1px — no icon (the earlier
  * checkmark + text lockup was retired; the browser-tab favicon is a separate file and is unaffected). The logotype is
  * deliberately NOT Fraunces: it is a separate treatment from the page's headings. In the header it is the largest
  * text in the bar (30px vs. 13px links) so the brand leads the hierarchy.
@@ -25,8 +25,8 @@ export function Logo({
   } ${tone === "dark" ? "text-term-text" : "text-ink"}`;
 
   return href ? (
-    <HomeLink className={`${className} rounded-md`}>Parity</HomeLink>
+    <HomeLink className={`${className} rounded-md`}>Provyn</HomeLink>
   ) : (
-    <span className={className}>Parity</span>
+    <span className={className}>Provyn</span>
   );
 }

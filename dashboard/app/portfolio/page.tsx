@@ -3,7 +3,7 @@ import { AppShell, Page, PageHeader } from "@/components/app/AppShell";
 import { PortfolioView } from "@/components/portfolio/PortfolioView";
 
 export const metadata: Metadata = {
-  title: "Parity, Portfolio",
+  title: "Provyn, Portfolio",
   description: "Your real Kamino positions: borrows, Multiply positions, health factors and idle balances.",
 };
 

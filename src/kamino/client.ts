@@ -243,6 +243,40 @@ export class KaminoClient {
     }));
   }
 
+  /**
+   * Kamino's oracle price for a reserve plus the mint's EFFECTIVE Token-2022 scaled-UI multiplier, for comparing the
+   * on-chain price with a real stock quote.
+   *
+   * MEASURED 2026-10-06 (see TESTPLAN.md): Kamino's oracle price per xStock token is NOT the stock price. It is the stock
+   * price times the mint's effective multiplier (AAPLx 1.003269, SPYx 1.005715, TSLAx 1), so dividing by it is required
+   * before any comparison. Effective = `newMultiplier` once its `newMultiplierEffectiveTimestamp` has passed, else
+   * `multiplier`. Returns multiplier null (never a guessed 1) if the mint can't be read, so callers must say so.
+   */
+  async getOracleReference(symbol: string): Promise<{
+    symbol: string;
+    mintAddress: string;
+    oraclePriceUsd: number;
+    uiMultiplier: number | null;
+    uiMultiplierSource: string;
+  }> {
+    const reserve = this.getReserve(symbol);
+    const mintAddress = String(reserve.getLiquidityMint());
+    const oraclePriceUsd = Number(reserve.getOracleMarketPrice().toString());
+    try {
+      const acc = await this.rpc.getAccountInfo(address(mintAddress), { encoding: "jsonParsed" }).send();
+      const info: any = (acc.value?.data as any)?.parsed?.info;
+      const ext = info?.extensions?.find((e: any) => e.extension === "scaledUiAmountConfig")?.state;
+      if (!ext) return { symbol, mintAddress, oraclePriceUsd, uiMultiplier: 1, uiMultiplierSource: "mint has no scaledUiAmountConfig extension" };
+      const now = Math.floor(Date.now() / 1000);
+      const useNew = Number(ext.newMultiplierEffectiveTimestamp) > 0 && now >= Number(ext.newMultiplierEffectiveTimestamp);
+      const m = Number(useNew ? ext.newMultiplier : ext.multiplier);
+      if (!(m > 0)) throw new Error("multiplier is not a positive number");
+      return { symbol, mintAddress, oraclePriceUsd, uiMultiplier: m, uiMultiplierSource: useNew ? "scaledUiAmountConfig.newMultiplier (effective)" : "scaledUiAmountConfig.multiplier" };
+    } catch (err) {
+      return { symbol, mintAddress, oraclePriceUsd, uiMultiplier: null, uiMultiplierSource: `could not read the mint: ${(err as Error).message}` };
+    }
+  }
+
   /** Filters listReserves() down to symbols that look like xStocks (heuristic — verify). */
   listXStockReserves(): ReserveSnapshot[] {
     return this.listReserves().filter((r) => /x$/i.test(r.symbol) || /^x/i.test(r.symbol));

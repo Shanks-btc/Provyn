@@ -106,7 +106,8 @@ function EtfOpen({ asset, onBack }: { asset: MultiplyAsset; onBack: () => void }
       </div>
       {depositUsd !== null && <div className="font-mono text-[11px] text-term-muted">Exposure {usd(depositUsd * lev)} · USDC debt {usd(depositUsd * (lev - 1))}{hf !== null ? ` · HF ${hf.toFixed(2)}` : ""}</div>}
       {action}
-      <p className="m-0 font-mono text-[10px] leading-normal text-term-faint">Real mainnet funds, via Kamino Multiply (Kamino manages the leverage, not Parity). Simulated before you sign.</p>
+      <p className="m-0 font-mono text-[10px] leading-normal text-term-faint">Real mainnet funds, via Kamino Multiply (Kamino manages the leverage, not Provyn). Simulated before you sign.</p>
+      <p className="m-0 font-mono text-[11px] leading-normal text-term-text" data-testid="etf-close-note">Provyn can&apos;t close Multiply positions yet. Close it in Kamino&apos;s app.</p>
       {result && <TxModal open={modal} title={`Open a ${lev.toFixed(1)}x ${asset} Multiply position with ${tokenAmount(deposit, 8)} ${asset}.`} rows={rows} simulation={result} state={exec.state} onConfirm={() => strategy && exec.run(strategy)} onClose={closeModal} />}
     </div>
   );

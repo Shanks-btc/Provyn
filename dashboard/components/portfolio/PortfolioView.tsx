@@ -74,11 +74,11 @@ export function PortfolioView() {
       {multiply.length > 0 && (
         <Group
           id="multiply" title="Multiply positions" tag="MULTIPLY"
-          blurb="Leveraged positions opened through Kamino Multiply. The debt was taken on to add exposure, and Kamino's own mechanism manages the leverage, not Parity. Repay and withdraw aren't offered here yet, unwinding a Multiply position means reversing a flash loan and a swap, not a plain repay/withdraw."
+          blurb="Leveraged positions opened through Kamino Multiply. The debt was taken on to add exposure, and Kamino's own mechanism manages the leverage, not Provyn. Repay and withdraw aren't offered here yet, unwinding a Multiply position means reversing a flash loan and a swap, not a plain repay/withdraw."
           items={multiply}
         />
       )}
-      {other.length > 0 && <Group id="other" title="Other Kamino positions" tag="OTHER" blurb="Obligation types Parity does not create." items={other} />}
+      {other.length > 0 && <Group id="other" title="Other Kamino positions" tag="OTHER" blurb="Obligation types Provyn does not create." items={other} />}
 
       <section aria-labelledby="spot-title" data-testid="spot-balances">
         <h2 id="spot-title" className="m-0 mb-1 font-serif text-[24px] font-semibold text-ink">Spot balances</h2>

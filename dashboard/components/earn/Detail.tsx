@@ -142,8 +142,8 @@ export function Counterparties({ items }: { items: { name: string; role: string;
 }
 
 export const COUNTERPARTIES = [
-  { name: "Kamino Lend", role: "The lending market Parity builds on: it holds your collateral, lends the USDC and liquidates positions that fall below their threshold. Parity is a client of it, not a lender.", href: "https://kamino.finance" },
-  { name: "Pyth Network", role: "Oracle network Parity uses to cross-check prices. Kamino's own oracle sets the prices your position is actually liquidated against.", href: "https://www.pyth.network" },
+  { name: "Kamino Lend", role: "The lending market Provyn builds on: it holds your collateral, lends the USDC and liquidates positions that fall below their threshold. Provyn is a client of it, not a lender.", href: "https://kamino.finance" },
+  { name: "Pyth Network", role: "Oracle network Provyn cross-checks prices against whenever its feeds can answer. Kamino's own oracle sets the prices your position is actually liquidated against.", href: "https://www.pyth.network" },
 ];
 
 export function Faq({ items }: { items: { q: string; a: ReactNode }[] }) {

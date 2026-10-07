@@ -69,7 +69,7 @@ export function TxModal({
               You are about to sign a real transaction
             </h2>
             <p className="m-0 mb-5 font-serif text-[14px] leading-normal text-ink-muted">
-              {title} This moves real funds on Solana mainnet. Parity never holds your keys, your wallet will ask you to approve it next.
+              {title} This moves real funds on Solana mainnet. Provyn never holds your keys, your wallet will ask you to approve it next.
             </p>
             <div className="mb-4 overflow-hidden rounded-[10px] border border-line">
               {rows.map((r) => (

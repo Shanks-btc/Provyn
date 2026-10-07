@@ -100,10 +100,10 @@ export function useExecute(onSettled?: () => void) {
         const msg = (e as Error).message || "";
         if (/reject|denied|declin|cancel|closed/i.test(msg)) return done({ kind: "declined" });
         const detail = walletErrorDetail(e, msg);
-        // By this point Parity's own build already simulated successfully (the "building" step passed) — a failure
+        // By this point Provyn's own build already simulated successfully (the "building" step passed) — a failure
         // here is the WALLET's own re-check, run again right as you approve, against whatever the chain looks like
         // a few seconds later. Say so, so "it just passed simulation" and "it failed simulation" aren't a contradiction.
-        const text = !detail && /simulat/i.test(msg) ? `${msg} (your wallet's own check, run again right before signing — Parity's build already passed).` : `${msg}${detail ? `: ${detail}` : ""}`;
+        const text = !detail && /simulat/i.test(msg) ? `${msg} (your wallet's own check, run again right before signing — Provyn's build already passed).` : `${msg}${detail ? `: ${detail}` : ""}`;
         return done({ kind: "rejected", error: text || "The wallet did not sign." });
       }
 

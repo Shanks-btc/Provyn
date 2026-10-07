@@ -4,7 +4,7 @@ import { AppShell, Page, PageHeader } from "@/components/app/AppShell";
 import { BorrowForm } from "@/components/borrow/BorrowForm";
 
 export const metadata: Metadata = {
-  title: "Parity, Borrow",
+  title: "Provyn, Borrow",
   description: "Supply an xStock as collateral on Kamino and borrow USDC, with the exact transaction simulated on mainnet before you sign.",
 };
 

@@ -11,11 +11,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import { KaminoClient, type AssetCapabilities } from "../kamino/client";
 import { withRpcRetry } from "../kamino/rpc-retry";
 import { PythFeedClient } from "../pyth/feeds";
-import { findUngroundedCapabilityClaims } from "./grounding";
+import { findUngroundedCapabilityClaims, findUngroundedPriceSourceClaims } from "./grounding";
+import { checkPriceDivergence, type PriceCheckDeps, type PriceCheckResult } from "./priceCheck";
 import { tools } from "./tools";
 import { StrategyValidator, strategyFingerprint, type StrategyInput, type ValidationResult } from "./validate";
 
-const SYSTEM_PROMPT = `You are Parity, an onchain prime brokerage agent for tokenized equities (xStocks) on Solana.
+const SYSTEM_PROMPT = `You are Provyn, an onchain prime brokerage agent for tokenized equities (xStocks) on Solana.
 
 Your job: take a user's stated financial intent and recommend a concrete, conservative position using Kamino Lend as the borrow/collateral venue. You do not execute trades — you propose them via propose_strategy and stop.
 
@@ -43,7 +44,10 @@ Earn economics:
 - Earn = supplying USDC to this market's USDC reserve at its live supply APY. If the USDC borrow APY is higher than the supply APY, an earn leg funded by borrowed USDC loses money (negative carry) — say so plainly with both rates, and prefer borrow-only (the user keeps the USDC for their own use) unless the user explicitly wants the earn leg anyway.
 
 Risk rules:
-- If check_price_divergence returns available: false, you may still propose a strategy, but you MUST: (a) explicitly state in the summary that the independent Pyth price check was unavailable and the proposal relies solely on Kamino's internal pricing, (b) add "Pyth divergence check unavailable — reduced price visibility" as an explicit item in the risks array, and (c) size the position more conservatively than you otherwise would. If it succeeds, a spread over ~1-2% or a stale feed (either side older than ~60s) is a real risk — say so explicitly.
+- check_price_divergence says which source answered (source: "pyth" or "finnhub"). Always name that source exactly. NEVER say Pyth checked or verified a price unless source is "pyth".
+- If it returns available: false (neither Pyth nor Finnhub could answer), you may still propose a strategy, but you MUST: (a) explicitly state in the summary that the independent Pyth price check was unavailable and the proposal relies solely on Kamino's internal pricing, (b) add "Pyth divergence check unavailable — reduced price visibility" as an explicit item in the risks array, and (c) size the position more conservatively than you otherwise would.
+- If it returns source "finnhub", Pyth was unavailable and the cross-check compared Kamino's oracle price with Finnhub's real stock quote. You MUST: (a) say in the summary that Pyth was unavailable and the check used Finnhub, (b) add a risks item beginning "Pyth divergence check unavailable — Finnhub used as the reference" that also states the market session: if referenceSession is not "open", say the market was closed (or not confirmed live) and the reference is the last close from referenceAsOf, (c) if coarse is true, size exactly as conservatively as when the check is unavailable; if classification is "meaningful_divergence", treat it as a real risk and size down. Never describe a Finnhub result as a Pyth check.
+- If source is "pyth": a spread over ~1-2% or a stale feed (either side older than ~60s) is a real risk — say so explicitly.
 - Never propose a health factor below 1.5 without flagging it as high-risk in plain language. Err conservative.
 - If list_xstock_reserves doesn't include the symbol the user mentioned, say so plainly rather than guessing at parameters.
 - Keep the summary in plain English a non-crypto-native person could follow.`;
@@ -65,12 +69,17 @@ export class ParityAgent {
   private validations = new Map<string, ValidationResult>();
   /** get_asset_capabilities results the agent has actually seen this conversation, by symbol. */
   private checkedCapabilities = new Map<string, AssetCapabilities>();
+  /** check_price_divergence results this run, by symbol — propose_strategy's price-source claims are checked against them. */
+  private priceChecks = new Map<string, PriceCheckResult>();
+  /** Finnhub is injectable so tests can force a timeout or a market state; defaults to the real module. */
+  private priceDeps: PriceCheckDeps;
 
-  constructor(kamino: KaminoClient, pyth: PythFeedClient, apiKey: string) {
+  constructor(kamino: KaminoClient, pyth: PythFeedClient, apiKey: string, priceOverrides?: Pick<PriceCheckDeps, "finnhub">) {
     this.anthropic = new Anthropic({ apiKey });
     this.kamino = kamino;
     this.pyth = pyth;
     this.validator = new StrategyValidator(kamino);
+    this.priceDeps = { pyth, kamino, ...priceOverrides };
   }
 
   private async executeTool(name: string, input: any): Promise<any> {
@@ -87,16 +96,12 @@ export class ParityAgent {
         return caps;
       }
 
-      case "check_price_divergence":
-        try {
-          return await this.pyth.checkDivergence(input.symbol);
-        } catch (err) {
-          return {
-            available: false,
-            symbol: input.symbol,
-            error: (err as Error).message,
-          };
-        }
+      case "check_price_divergence": {
+        // Pyth first, Finnhub as a labelled fallback, else { available: false } — never throws.
+        const result = await checkPriceDivergence(input.symbol, this.priceDeps);
+        this.priceChecks.set(input.symbol, result);
+        return result;
+      }
 
       case "validate_strategy": {
         const { walletAddress, ...strategy } = input;
@@ -137,6 +142,10 @@ export class ParityAgent {
     if (ungrounded.length > 0) {
       return `Ungrounded capability claims — fix and call propose_strategy again:\n- ${ungrounded.join("\n- ")}`;
     }
+    const wrongSource = findUngroundedPriceSourceClaims(input, this.priceChecks);
+    if (wrongSource.length > 0) {
+      return `Price-check source misstated — fix and call propose_strategy again:\n- ${wrongSource.join("\n- ")}`;
+    }
     return null;
   }
 
@@ -153,6 +162,7 @@ export class ParityAgent {
   ): Promise<any> {
     this.validations.clear();
     this.checkedCapabilities.clear();
+    this.priceChecks.clear();
     const messages: Anthropic.MessageParam[] = [
       {
         role: "user",

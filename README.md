@@ -1,15 +1,17 @@
-# Parity
+# Provyn
 
-Parity is an onchain prime brokerage for tokenized stocks. It turns an xStocks portfolio into working capital. You can borrow stablecoins against AAPLx or SPYx, earn yield by redepositing them into Kamino's lending pool, add leverage through Kamino Multiply, and trade through Jupiter, all from one interface. Describe what you want in plain language or pick it from a guided wizard. Parity reads your real Kamino position, checks the asset's price against Pyth, and simulates the transaction before showing you anything. You only ever sign something that has already been proven to work. Funds can come from any chain through deBridge.
+Provyn (formerly Parity)
+
+Provyn is an onchain prime brokerage for tokenized stocks. It turns an xStocks portfolio into working capital. You can borrow stablecoins against AAPLx or SPYx, earn yield by redepositing them into Kamino's lending pool, add leverage through Kamino Multiply, and trade through Jupiter, all from one interface. Describe what you want in plain language or pick it from a guided wizard. Provyn reads your real Kamino position, simulates the transaction before showing you anything, and cross-checks the asset's price against Pyth whenever Pyth can answer. You only ever sign something that has already been proven to work. Funds can come from any chain through deBridge.
 
 - **Demo video:** https://vimeo.com/manage/videos/1230313058
-- **Repository:** https://github.com/Shanks-btc/Parity
+- **Repository:** https://github.com/Shanks-btc/Provyn
 - **Live app: https://dashboard-production-d8bb.up.railway.app/
 
 ## Contents
 
 - [The problem](#the-problem)
-- [What Parity does](#what-parity-does)
+- [What Provyn does](#what-provyn-does)
 - [How it works](#how-it-works)
 - [Architecture](#architecture)
 - [The agent](#the-agent)
@@ -30,20 +32,20 @@ Parity is an onchain prime brokerage for tokenized stocks. It turns an xStocks p
 
 ## The problem
 
-Retail margin is expensive and manual. A major brokerage's own published small-balance margin rate is roughly 11.8%; Parity's live rate on Solana via Kamino is currently in the 7% range, checked directly against Kamino's market, not estimated. But cheaper access isn't the interesting part on its own. The interesting part is that most tools in this space will happily show you a recommendation built on stale data, an unavailable price feed, or an assumption about your position that was never actually checked. Parity is built so that can't happen quietly.
+Retail margin is expensive and manual. A major brokerage's own published small-balance margin rate is roughly 11.8%; Provyn's live rate on Solana via Kamino is currently in the 7% range, checked directly against Kamino's market, not estimated. But cheaper access isn't the interesting part on its own. The interesting part is that most tools in this space will happily show you a recommendation built on stale data, an unavailable price feed, or an assumption about your position that was never actually checked. Provyn is built so that can't happen quietly.
 
-I built Parity around a simple question: **what should an agent be allowed to tell a user before it's actually checked?** A recommendation that sounds confident isn't the same as one that's been verified against real state, and a system that can't tell the difference will eventually propose something wrong with total conviction. Every proposal Parity makes has to survive contact with a real position, a real price check and if any of those can't be completed, the agent has to say so, not fill the gap with a guess.
+I built Provyn around a simple question: **what should an agent be allowed to tell a user before it's actually checked?** A recommendation that sounds confident isn't the same as one that's been verified against real state, and a system that can't tell the difference will eventually propose something wrong with total conviction. Every proposal Provyn makes has to survive contact with a real position, a real price check and if any of those can't be completed, the agent has to say so, not fill the gap with a guess.
 
-## What Parity does
+## What Provyn does
 
-Parity makes the agent's claim no stronger than what it actually checked.
+Provyn makes the agent's claim no stronger than what it actually checked.
 
 | Principle | What it means |
 |---|---|
 | **Real checks, not a form** | Every proposal is preceded by a live read of the user's actual position, not a number they typed in. |
 | **Causal grounding, not vibes** | The agent doesn't just say "yield on SPYx", it reads what that specific asset actually supports (Borrow, Earn, Multiply are asset-dependent, and the agent is not allowed to claim a capability it hasn't queried this turn). |
-| **Degradation is explicit, never silent** | When Pyth's price check is unavailable, the agent says so and sizes conservatively, proven directly, not just described, by the account's real entitlement gap. |
-| **Non-custodial by construction** | Parity never holds a user's keys or funds. Every transaction is built unsigned, and the user's own wallet signs it. |
+| **Degradation is explicit, never silent** | The price check tries Pyth first. If Pyth can't answer, the agent says so and sizes conservatively, proven directly, not just described, by the account's real entitlement gap. (An optional Finnhub stock-quote fallback exists in the code and is off by default; see Known limitations.) |
+| **Non-custodial by construction** | Provyn never holds a user's keys or funds. Every transaction is built unsigned, and the user's own wallet signs it. |
 
 The product rests on one boundary:
 
@@ -59,9 +61,9 @@ A user reaches a proposal two ways, directly through the Borrow/Earn pages, or t
 flowchart LR
     A["Borrow / Earn pages<br/>(direct)"] --> C
     B["4-step wizard<br/>What do you want to do?<br/>Which asset? Outlook? Risk?"] -->|"composes answers into<br/>the same real intent"| C
-    C["Parity agent"] --> D["Verified proposal"]
+    C["Provyn agent"] --> D["Verified proposal"]
     D --> E["User reviews the real numbers"]
-    E -->|"signs"| F["User's own wallet signs.<br/>Parity never signs on a user's behalf"]
+    E -->|"signs"| F["User's own wallet signs.<br/>Provyn never signs on a user's behalf"]
     E -->|"declines"| G["Nothing is sent"]
 ```
 
@@ -69,15 +71,15 @@ flowchart LR
 
 1. The agent reads the user's real Kamino obligation — per-asset collateral, borrow, and health factor, not an aggregate.
 2. It checks which capabilities (Borrow, Earn, Multiply) the specific asset actually supports right now, live.
-3. It cross-checks the asset's price against Pyth's real feed, flagging a stale or unavailable check explicitly rather than proceeding as if it succeeded.
+3. When Pyth can answer, it cross-checks the asset's price against Pyth's real feed. A stale or unavailable check is flagged explicitly rather than proceeding as if it succeeded.
 4. It simulates the exact transaction against live mainnet state and only proposes a strategy once that simulation passes.
-5. The user reviews the real numbers and signs, or doesn't. Parity never signs on a user's behalf.
+5. The user reviews the real numbers and signs, or doesn't. Provyn never signs on a user's behalf.
 
 ### Proposal sequence
 
 1. The agent reads the user's real position (`get_position`) — per-reserve, not aggregate.
 2. It checks the asset's live capabilities (`get_asset_capabilities`) — never asserted from memory or the asset's name alone.
-3. It checks the asset's price against Pyth (`check_price_divergence`) — a blocked or stale check is disclosed, not hidden.
+3. It checks the asset's price against Pyth (`check_price_divergence`). A blocked or stale check is disclosed, not hidden. (The result names its source; an optional Finnhub fallback is off by default.)
 4. It builds and simulates the actual transaction (`validate_strategy`) against live mainnet state.
 5. Only after all of the above succeed (or explicitly degrade with disclosure) does it produce a proposal (`propose_strategy`) for the user to review.
 6. The user signs, or doesn't. Nothing is submitted without their signature.
@@ -90,6 +92,7 @@ sequenceDiagram
     participant A as Agent (Claude)
     participant K as Kamino (mainnet)
     participant P as Pyth Hermes
+    participant F as Finnhub (optional, off by default)
     participant J as Jupiter
 
     U->>W: intent (plain text or wizard answers)
@@ -98,8 +101,12 @@ sequenceDiagram
     K-->>A: per-reserve collateral, debt, health factor
     A->>K: get_asset_capabilities
     K-->>A: Borrow / Earn / Multiply supported or not
-    A->>P: check_price_divergence
+    A->>P: check_price_divergence (Pyth first)
     P-->>A: spread, or a disclosed failure
+    opt Pyth cannot answer AND FINNHUB_ENABLED=true
+        A->>F: stock quote + market status
+        F-->>A: reference price, labelled as Finnhub (coarse when the market is closed)
+    end
     A->>K: validate_strategy
     K->>J: swap quote (Multiply only)
     K-->>A: real simulation: slot, compute units, projected HF
@@ -113,7 +120,7 @@ sequenceDiagram
 
 | Layer | Responsibility | Primary location |
 |---|---|---|
-| Backend | Kamino/Pyth/Jupiter integration, transaction construction and simulation | `src/` |
+| Backend | Kamino/Pyth/Jupiter integration (Finnhub optional), transaction construction and simulation | `src/` |
 | Agent | Reasoning loop, tool definitions, grounding checks, strategy validation | `src/agent/` |
 | API | Server-side routes wrapping the backend for the dashboard | `dashboard/app/api/` |
 | Dashboard | Landing, Borrow, Earn, Portfolio, Trade, wizard | `dashboard/app/`, `dashboard/components/` |
@@ -137,6 +144,7 @@ flowchart TB
         KC["Kamino client<br/>reads · builders · simulation"]
         JP["Jupiter integration"]
         PY["Pyth client"]
+        FC["Finnhub client<br/>(optional, off by default)"]
         EX["Execute<br/>serialize · submit · confirm"]
     end
 
@@ -146,7 +154,7 @@ flowchart TB
         JUP[("Jupiter")]
         SOL[("Solana RPC")]
         ANT[("Anthropic API")]
-        FH[("Finnhub<br/>one live price")]
+        FH[("Finnhub<br/>(optional, off by default)")]
     end
 
     UI --> API
@@ -157,10 +165,12 @@ flowchart TB
     API --> EX
     AG --> KC
     AG --> PY
+    AG --> FC
     KC --> JP
     KC --> KAM
     KC --> SOL
     PY --> PYTH
+    FC --> FH
     JP --> JUP
     EX --> SOL
     AG --> ANT
@@ -172,7 +182,8 @@ flowchart TB
 | Component | What it does | Where it lives |
 |---|---|---|
 | Kamino client | Market/reserve/obligation reads, transaction construction, simulation | `src/kamino/` |
-| Pyth client | Live price feed reads via Hermes | `src/pyth/` |
+| Pyth client | Live price feed reads via Hermes: the first-choice price check | `src/pyth/` |
+| Finnhub client | Optional, off by default (`FINNHUB_ENABLED`): stock quote and market status for the price-check fallback, the Trade price band and the risk-data reference series | `src/finnhub/` |
 | Jupiter integration | Swap quoting and standalone swap construction | `src/kamino/jupiter.ts` |
 | Agent core | Claude-driven reasoning loop, tool definitions, grounding checks, strategy validation | `src/agent/` |
 | Position management | Repay, withdraw and close for Vanilla obligations | `src/agent/manage.ts` |
@@ -283,7 +294,7 @@ flowchart LR
 
 ## Verification
 
-Parity's verification layer is load-bearing, not decorative: every proposal is checked against real position data, a real price feed, and a real transaction simulation, and the result changes what the agent is allowed to say. Remove any one of these checks and the agent cannot tell a safe proposal from an unsafe guess.
+Provyn's verification layer is load-bearing, not decorative: every proposal is checked against real position data, a real price feed, and a real transaction simulation, and the result changes what the agent is allowed to say. Remove any one of these checks and the agent cannot tell a safe proposal from an unsafe guess.
 
 **What is verified.** Three things, every time, before a proposal is assembled: the user's real per-asset position (not an aggregate), the asset's real capabilities (Borrow/Earn/Multiply, live from Kamino, not assumed from the asset's name), and the transaction's real outcome under simulation (projected health factor, compute cost, whether it would actually succeed on mainnet).
 
@@ -293,7 +304,7 @@ Parity's verification layer is load-bearing, not decorative: every proposal is c
 
 **What breaks if verification is removed.** The agent would have no way to distinguish a real position from an assumed one, a live capability from a stale one, or a transaction that would succeed from one that would fail on-chain. It would still sound confident — it just wouldn't be trustworthy.
 
-**Data sources.** Kamino Lend (positions, reserves, simulation), Pyth Network (price verification, currently entitlement-blocked for equities), Jupiter (swap quotes and construction), Solana mainnet (the ground truth all of the above reads against).
+**Data sources.** Kamino Lend (positions, reserves, simulation), Pyth Network (first-choice price verification, currently entitlement-blocked for equities), Finnhub (optional stock quote fallback, off by default), Jupiter (swap quotes and construction), Solana mainnet (the ground truth all of the above reads against).
 
 ```mermaid
 flowchart LR
@@ -371,16 +382,17 @@ Local secrets live in a gitignored `.env` / `.env.local`. Production secrets are
 | Frontend | Deployed on Railway | Next.js, real API routes wrapping the backend |
 | Wallet connection | Real, tested | Phantom/Solflare via wallet-adapter, verified against a real extension |
 | Signing | Devnet proven, mainnet simulated | Sign→submit→confirm pipeline confirmed end-to-end on devnet; every mainnet transaction type built and simulated, not yet signed live |
-| Pyth equity feed | Blocked | Current API key lacks equity-feed entitlement; the agent's degradation path is what's tested, not the successful check itself |
+| Pyth equity and xStock feeds | Blocked | Current API key lacks entitlement; the Pyth success path is untested for that reason, and the agent's disclosed 'unavailable' path is what runs |
+| Finnhub (optional) | Built, off by default | Opt-in with `FINNHUB_ENABLED=true`. Finnhub's free plan is personal-use only and bars sharing its data or derived results without written approval, so the price-check fallback, the Trade price band and the stock-reference series are all off unless enabled. Off, the agent behaves exactly as before: Pyth, then a disclosed 'unavailable' |
 | Trade | Concept only | No live equity-perpetual market exists anywhere on Solana yet |
-| Spot swap, ETF tab, position management | Built, not yet in the deployed build | Newer than the last Railway deploy; deploying needs `ANTHROPIC_API_KEY` and `FINNHUB_API_KEY` set on Railway |
+| Spot swap, ETF tab, position management | Built, not yet in the deployed build | Newer than the last Railway deploy; deploying needs `ANTHROPIC_API_KEY` set on Railway |
 
 ## Public endpoints
 
 | Service | URL |
 |---|---|
-| Parity dashboard | `<insert current live Railway URL once redeploy is confirmed>` |
-| Repository | https://github.com/Shanks-btc/Parity |
+| Provyn dashboard | `<insert current live Railway URL once redeploy is confirmed>` |
+| Repository | https://github.com/Shanks-btc/Provyn |
 
 ## Quick start
 
@@ -388,13 +400,13 @@ Local secrets live in a gitignored `.env` / `.env.local`. Production secrets are
 
 - Node.js 18+
 - A Solana RPC provider (a dedicated one — the public endpoint reliably times out on real Kamino reads)
-- API keys: Anthropic, Pyth, Finnhub (optional, for Trade's one real price element)
+- API keys: Anthropic and Pyth. Finnhub only if you opt in (`FINNHUB_ENABLED=true`) and your licence permits it
 
 ### Install
 
 ```
-git clone https://github.com/Shanks-btc/Parity.git
-cd Parity
+git clone https://github.com/Shanks-btc/Provyn.git
+cd Provyn
 npm install
 
 cd dashboard
@@ -428,6 +440,9 @@ npm run dev
 | `npm run check:agent` | Runs the full agent reasoning loop against a real wallet | Real mainnet reads, real Anthropic spend |
 | `npm run check:send-devnet` | Serialize, sign, submit and confirm on devnet | Devnet only, throwaway keypair |
 | `npm run snapshot:landing` | Refreshes the live figures shown on the landing page | Real mainnet + Kamino API reads |
+| `npm run check:price` | Verifies the price check with the optional Finnhub fallback on (live and mocked states) and off (the default) | Real Pyth, Kamino and Finnhub reads, no spend |
+| `npm run collect` | Long-running risk-data collector: on-chain oracle price and multiplier every 5 min and market state every 30 min, written to append-only files under `data/riskdata` (`-- backfill` imports Kamino's hourly history; `-- export <file>` writes a public-safe CSV). The stock-reference and gap series are recorded only with `FINNHUB_ENABLED=true` | Real Kamino reads, no signing |
+| `npm run check:riskdata` | Failure-injection and idempotency checks for the collector, on a throwaway directory | Local only |
 
 ## Testing
 
@@ -447,6 +462,7 @@ Every check runs against real infrastructure. There are no mocks in the backend 
 src/
   kamino/       market/reserve/obligation reads, transaction builders, simulation, Jupiter swap construction
   pyth/         Hermes price feed client
+  finnhub/      optional stock quote and market status client (off by default)
   agent/        reasoning loop, tool definitions, grounding checks, strategy validation
 dashboard/
   app/          landing, borrow, earn, portfolio, trade, api routes
@@ -458,10 +474,11 @@ TESTPLAN.md     the full live verification sequence and its real, dated results
 ## Known limitations
 
 - **No real signed mainnet transaction yet.** Every mainnet transaction type has been built and simulated against live state, and the sign pipeline is proven on devnet. The first real signature is still ahead.
-- **Pyth equity feeds are blocked.** The key lacks equity-feed entitlement, so what is exercised is the agent's disclosed fallback, not a successful independent price check.
+- **Pyth equity and xStock feeds are blocked.** The key lacks entitlement, so the Pyth success path is untested. The agent says the check is unavailable and sizes conservatively.
+- **Finnhub is opt-in and off by default.** Its free plan is personal-use only and its terms bar sharing its data or "derived results" without written approval, so nothing public or business-facing may depend on it. The price-check fallback, the Trade price band and the stock-reference series run only with `FINNHUB_ENABLED=true`. When enabled, the check is coarse while US markets are closed (the quote is the last close, so a gap can be an after-hours move).
 - **Trade Perp is a concept.** No live equity-perpetual market exists on Solana. It is simulated and cannot place an order.
 - **Position management is Vanilla only.** Repay, withdraw and close cover plain Kamino obligations. Unwinding a Multiply position means reversing a flash loan and a swap, and is separate work.
-- **Multiply leverage is Kamino's to manage.** After a position opens, Parity does not rebalance or monitor it.
+- **Multiply leverage is Kamino's to manage.** After a position opens, Provyn does not rebalance or monitor it. Provyn can't close Multiply positions yet, so close one in Kamino's app.
 - **Rate limits are in memory.** They are per-IP, on a single replica, and reset on restart.
 - **Swaps are exact-input only.** Jupiter has no exact-output routes for xStocks.
 
@@ -477,4 +494,4 @@ TESTPLAN.md     the full live verification sequence and its real, dated results
 
 ---
 
-An onchain prime brokerage for tokenized stocks, built for Stocklana (Solana Foundation hackathon). Kamino for collateral and yield, Pyth for independent price verification, Claude for the reasoning loop.
+An onchain prime brokerage for tokenized stocks, built for Stocklana (Solana Foundation hackathon). Kamino for collateral and yield, Pyth for price cross-checks whenever its feeds can answer, Claude for the reasoning loop.
